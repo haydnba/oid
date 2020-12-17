@@ -19,9 +19,6 @@ var initial = random()
 
 // New - describe
 func New() string {
-	// Hold the result
-	var b []byte
-
 	// Generate the timestamp portion
 	ts := make([]byte, 4)
 	binary.BigEndian.PutUint32(
@@ -37,6 +34,7 @@ func New() string {
 	inc := atomic.AddUint32(&initial, 1)
 
 	// Build the object id
+	var b []byte
 	b = append(ts, rnd...)
 	b = append(b, []byte{
 		byte(inc >> 16),
