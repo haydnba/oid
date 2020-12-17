@@ -23,25 +23,26 @@ func New() string {
 	var b []byte
 
 	// Generate the timestamp portion
-	tstmp := make([]byte, 4)
+	timestamp := make([]byte, 4)
 	binary.BigEndian.PutUint32(
-		tstmp[:], uint32(time.Now().Unix()),
+		timestamp[:], uint32(time.Now().Unix()),
 	)
 
 	// Generate the random portion
-	token := make([]byte, 5)
+	random := make([]byte, 5)
 	rand.Seed(time.Now().UnixNano())
-	rand.Read(token)
+	rand.Read(random)
 
 	// Generate the increment portion
-	count := atomic.AddUint32(&counter, 1)
+	increment := atomic.AddUint32(&counter, 1)
 
 	// Build the object id
-	b = append(tstmp, token...)
-	b = append(b, make([]byte, 3)...)
-	b[9] = byte(count >> 16)
-	b[10] = byte(count >> 8)
-	b[11] = byte(count)
+	b = append(timestamp, random...)
+	b = append(b, []byte{
+		byte(increment >> 16),
+		byte(increment >> 8),
+		byte(increment),
+	}...)
 
 	return hex.EncodeToString(b[:])
 }
