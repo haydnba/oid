@@ -8,14 +8,14 @@ import (
 	"time"
 )
 
-func randCount() uint32 {
-	counter := make([]byte, 4)
+func random() uint32 {
+	value := make([]byte, 4)
 	rand.Seed(time.Now().UnixNano())
-	rand.Read(counter)
-	return binary.BigEndian.Uint32(counter)
+	rand.Read(value)
+	return binary.BigEndian.Uint32(value)
 }
 
-var counter = randCount()
+var initial = random()
 
 // New - describe
 func New() string {
@@ -23,25 +23,25 @@ func New() string {
 	var b []byte
 
 	// Generate the timestamp portion
-	timestamp := make([]byte, 4)
+	ts := make([]byte, 4)
 	binary.BigEndian.PutUint32(
-		timestamp[:], uint32(time.Now().Unix()),
+		ts[:], uint32(time.Now().Unix()),
 	)
 
 	// Generate the random portion
-	random := make([]byte, 5)
+	rnd := make([]byte, 5)
 	rand.Seed(time.Now().UnixNano())
-	rand.Read(random)
+	rand.Read(rnd)
 
 	// Generate the increment portion
-	increment := atomic.AddUint32(&counter, 1)
+	inc := atomic.AddUint32(&initial, 1)
 
 	// Build the object id
-	b = append(timestamp, random...)
+	b = append(ts, rnd...)
 	b = append(b, []byte{
-		byte(increment >> 16),
-		byte(increment >> 8),
-		byte(increment),
+		byte(inc >> 16),
+		byte(inc >> 8),
+		byte(inc),
 	}...)
 
 	return hex.EncodeToString(b[:])
